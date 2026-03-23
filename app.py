@@ -3,10 +3,12 @@ from PIL import Image
 from io import BytesIO
 from splitter import split_grid_from_image
 from streamlit_cropper import st_cropper
-st.set_page_config(layout="wide")
-st.set_page_config(page_title="IG Splitter Pro", layout="wide")
-
-st.title("🔥 IG Splitter Pro")
+st.set_page_config(
+    page_title="Boddy splitter Pro",
+    page_icon="🥵",   
+    layout="wide"
+)
+st.title("🔥 Splitter Pro")
 st.write("拖拉裁切 + IG 專用比例 + 拼接預覽")
 
 uploaded = st.file_uploader("上傳圖片", type=["jpg", "png"])
@@ -67,7 +69,10 @@ if uploaded:
         st.image(cropped, caption="裁切後", use_column_width=True)
 
     if st.button("🚀 切圖 + 預覽"):
-        pieces = split_grid_from_image(cropped, rows, cols)
+        with st.spinner("⚡ Fxxking making your IG layout..."):
+            pieces = split_grid_from_image(cropped, rows, cols)
+
+        st.success("完成！")
 
         st.subheader("📸 拼接預覽")
 
