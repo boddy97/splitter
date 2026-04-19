@@ -3,10 +3,15 @@ from PIL import Image
 from io import BytesIO
 from splitter import split_grid_from_image
 from streamlit_cropper import st_cropper
-st.set_page_config(layout="wide")
-st.set_page_config(page_title="IG Splitter Pro", layout="wide")
 
-st.title("🔥 IG Splitter Pro")
+if "pieces" not in st.session_state:
+    st.session_state.pieces = None
+st.set_page_config(
+    page_title="Boddy splitter Pro",
+    page_icon="🥵",   
+    layout="wide"
+)
+st.title("🔥 Splitter Pro")
 st.write("拖拉裁切 + IG 專用比例 + 拼接預覽")
 
 uploaded = st.file_uploader("上傳圖片", type=["jpg", "png"])
@@ -50,7 +55,7 @@ if uploaded:
 
     st.subheader("✂️ 拖拉裁切")
 
-    # 🔥 真拖拉裁切
+    # 拖拉裁切
     cropped = st_cropper(
         image,
         realtime_update=True,
@@ -66,8 +71,14 @@ if uploaded:
     with col2:
         st.image(cropped, caption="裁切後", use_column_width=True)
 
-    if st.button("🚀 切圖 + 預覽"):
-        pieces = split_grid_from_image(cropped, rows, cols)
+    if st.button("切圖 + 預覽"):
+        with st.spinner("⚡ Fxxking making your IG layout..."):
+            st.session_state.pieces = split_grid_from_image(cropped, rows, cols)
+
+        st.success("完成！")
+
+    if st.session_state.pieces is not None:
+        pieces = st.session_state.pieces
 
         st.subheader("📸 拼接預覽")
 
@@ -79,12 +90,14 @@ if uploaded:
                     st.image(pieces[idx], use_column_width=True)
                 idx += 1
 
-        st.subheader("⬇️ 下載")
+        st.subheader("⬇下載")
 
         for i, img in enumerate(pieces):
             buf = BytesIO()
-            img.save(buf, format="JPEG", quality=95, subsampling=0)
-
+            if img.mode != "RGB":
+                img = img.convert("RGB")
+            img.save(buf, format="JPEG", quality=95)
+            
             st.download_button(
                 label=f"下載 img_{i+1}.jpg",
                 data=buf.getvalue(),
